@@ -24,3 +24,18 @@ const userSchema = new mongoose.Schema({
 }, {
     timestamps: true,
 })
+
+// Pre-save hook to hash password
+userSchema.pre("save", async (next) => {
+    if (!this.isModified("password")) return next(); // Only hash if password changed
+        const salt = await bcrypt.genSalt(10);  // generate salt
+        this.password = await bcrypt.hash(this.password, salt);  // hash with salt
+        next();
+});
+
+userSchema.methods.matchPassword = async (enteredPassword) => {
+    return await bcrypt.compare(enteredPassword, this.password)
+}
+
+const User = mongoose.model("User", userSchema)
+module.exports = User;
