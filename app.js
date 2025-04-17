@@ -10,8 +10,8 @@ const PORT = process.env.PORT || 5000
 app.use(express.json());
 
 // Routes
-// const authRoutes = require("./routes/auth.routes");
-// app.use("/api/v1/auth", authRoutes);
+const authRoutes = require("./routes/auth.routes");
+app.use("/api/v1/auth", authRoutes);
 
 // Connect to MongoDB
 connectDB();
