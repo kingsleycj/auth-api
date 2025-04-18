@@ -11,5 +11,7 @@ router.post("/login", authController.login)
 // Protected route: fetch own profile
 router.get("/me", protect, profile.viewProfile)
 
+// Refresh route
+router.post('/refresh-token', authController.refreshToken)
 
 module.exports = router;

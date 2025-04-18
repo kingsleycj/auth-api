@@ -18,7 +18,7 @@ function protect(req, res, next) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
         // Attach user info for downstream handlers
-        req.user = { id: decoded.id }
+        req.user = { id: decoded._id }
         next();
     } catch (err) {
         console.log("Auth middleware error: ", err);
