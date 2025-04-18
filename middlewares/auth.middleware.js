@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken")
+require("dotenv").config()
+
 function protect(req, res, next) {
-    const authHeader = req.headers.authorisation;
+    console.log("REQ HEADERS:", req.headers);
+    const authHeader = req.headers.authorization;
 
     // If missing or not in "Bearer <token>" format, reject
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -15,7 +18,7 @@ function protect(req, res, next) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
         // Attach user info for downstream handlers
-        req.user = { id: decoded.userId }
+        req.user = { id: decoded.id }
         next();
     } catch (err) {
         console.log("Auth middleware error: ", err);
