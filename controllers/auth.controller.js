@@ -66,7 +66,7 @@ exports.login = async (req, res) => {
           _id: user._id,
           username: user.username,
           email: user.email,
-        //   refreshToken: user.refreshToken,
+          //   refreshToken: user.refreshToken,
         },
         token: generateToken(user._id),
         // refreshToken,
