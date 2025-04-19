@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { generateToken } = require("../utils/generateTokens");
 const { generateRefreshToken } = require("../utils/generateRefreshToken");
 const { json } = require("express");
-const crypto = require("crypto")
+const crypto = require("crypto");
 
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
@@ -52,17 +52,25 @@ exports.login = async (req, res) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.status(200).json({
-      message: "Login Successful",
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        refreshToken: user.refreshToken,
-      },
-      token: generateToken(user._id),
-      refreshToken,
-    });
+    res
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // only true in production
+        sameSite: "Strict", // or 'Lax' for a more relaxed CSRF policy
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7days
+      })
+      .status(200)
+      .json({
+        message: "Login Successful",
+        user: {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+        //   refreshToken: user.refreshToken,
+        },
+        token: generateToken(user._id),
+        // refreshToken,
+      });
   } catch (error) {
     console.error("Login Error: ", error);
     res.status(500).json({ messae: "Error Occurred While Attempting Login" });
@@ -70,7 +78,7 @@ exports.login = async (req, res) => {
 };
 
 exports.refreshToken = async (req, res) => {
-  const { refreshToken } = req.body;
+  const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
     return res.status(401).json({ message: "No Refresh Token Provided" });
@@ -105,7 +113,14 @@ exports.logout = async (req, res) => {
     user.refreshToken = null;
     await user.save();
 
-    res.status(200).json({ message: "User Has been logged out" });
+    res
+      .clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+      })
+      .status(200)
+      .json({ message: "User Has been logged out" });
   } catch (err) {
     console.log("Logout Error: ", err);
     res
@@ -140,11 +155,9 @@ exports.forgotPassword = async (req, res) => {
     });
   } catch (err) {
     console.log("Forgot Password Error: ", err);
-    res
-      .status(500)
-      .json({
-        message: "Something went wrong while trying to run forgot password",
-      });
+    res.status(500).json({
+      message: "Something went wrong while trying to run forgot password",
+    });
   }
 };
 
