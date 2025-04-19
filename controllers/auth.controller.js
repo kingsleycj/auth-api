@@ -2,6 +2,7 @@ const User = require("../models/user.model")
 const jwt = require("jsonwebtoken")
 const {generateToken} = require("../utils/generateTokens")
 const {generateRefreshToken} = require("../utils/generateRefreshToken")
+const { json } = require("express")
 
 
 exports.register = async (req, res) => {
@@ -85,5 +86,25 @@ exports.refreshToken = async (req, res) => {
     } catch (error) {
         console.log("Refresh Token Error: ", error);
         res.status(403).json({ message: "Invalid or expired refresh token. " })
+    }
+}
+
+exports.logout = async (req, res) => {
+    try {
+        //Await database call
+        const user = await User.findById( req.user._id )
+
+        if (!user) {
+            return res.status(404).json({message: "User was not found" })
+        } 
+
+        // Nullify refresh tokens
+        user.refreshToken = null;
+        await user.save();
+
+        res.status(200).json({ message: "User Has been logged out" })
+    } catch (err) {
+        console.log("Logout Error: ", err)
+        res.status(500).json({message: "Error occurred when trying to logout user"})
     }
 }

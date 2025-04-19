@@ -14,4 +14,7 @@ router.get("/me", protect, profile.viewProfile)
 // Refresh Token route
 router.post('/refresh-token', authController.refreshToken)
 
+// Logout a user
+router.post("/logout", protect, authController.logout)
+
 module.exports = router;
