@@ -3,12 +3,14 @@ const router = express.Router();
 const authController = require("../controllers/auth.controller")
 const profile = require("../controllers/profile.controller")
 const protect = require("../middlewares/auth.middleware")
+const { loginLimiter, forgotPasswordLimiter } = require("../middlewares/rateLimiter")
+
 
 // Register route
 router.post("/register", authController.register)
 
 // Login route
-router.post("/login", authController.login)
+router.post("/login", loginLimiter, authController.login)
 
 // Protected route: fetch own profile
 router.get("/me", protect, profile.viewProfile)
@@ -20,7 +22,7 @@ router.post('/refresh-token', authController.refreshToken)
 router.post("/logout", protect, authController.logout)
 
 // Forgot Password route
-router.post("/forgot-password", authController.forgotPassword)
+router.post("/forgot-password", forgotPasswordLimiter, authController.forgotPassword)
 
 // Reset password route
 router.post("/reset-password/:token", authController.resetPassword)
