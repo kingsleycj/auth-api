@@ -4,8 +4,10 @@ const authController = require("../controllers/auth.controller")
 const profile = require("../controllers/profile.controller")
 const protect = require("../middlewares/auth.middleware")
 
-// Public routes
+// Register route
 router.post("/register", authController.register)
+
+// Login route
 router.post("/login", authController.login)
 
 // Protected route: fetch own profile
@@ -14,7 +16,13 @@ router.get("/me", protect, profile.viewProfile)
 // Refresh Token route
 router.post('/refresh-token', authController.refreshToken)
 
-// Logout a user
+// Logout a user route
 router.post("/logout", protect, authController.logout)
+
+// Forgot Password route
+router.post("/forgot-password", authController.forgotPassword)
+
+// Reset password route
+router.post("/reset-password/:token", authController.resetPassword)
 
 module.exports = router;
